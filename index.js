@@ -18,23 +18,161 @@ const questions = [
         type: 'list',
         name: 'Choice',
         message: 'What would you like to do?',
-        choices: ['View All Departments', 'View All Roles','Add Employee','Quit']
+        choices: [
+          'View All Employees',
+          'Add Employee', 
+          'Update Employee Role', 
+          'View All Roles',
+          'Add Role', 
+          'View All Departments', 
+          'Add Department',
+          'Quit']
     },
 ];
 
 function mainmenu(){
     inquirer.prompt(questions)
     .then((answers) => {
-        if (answers.Choice === 'View All Departments') ViewAllDepartments();
-        if (answers.Choice === 'View All Roles') ViewAllRoles();
+      if (answers.Choice === 'View All Employees') ViewAllEmployees()
+      if (answers.Choice === 'Add Employee') AddEmployee()
+      if (answers.Choice === 'Update Employee Role') UpdateEmployeeRole()
+      if (answers.Choice === 'View All Roles') ViewAllRoles()
+      if (answers.Choice === 'Add Role') AddRole()
+      if (answers.Choice === 'View All Departments') ViewAllDepartments()
+      if (answers.Choice === 'Add Department') AddDepartment();
+      if (answers.Choice === 'Quit') Quit();
     })
     .catch((error) => {
         console.error(error);
     });
     };
 
+function ViewAllEmployees(){
+  client.query('SELECT * FROM employee', (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res.rows);
+      }
+      mainmenu(); 
+    });
+  };
+
+function AddEmployee(){
+  inquirer.prompt([
+    {
+        type: 'input',
+        name: 'firstName',
+        message: 'Enter the employee\'s first name:',
+    },
+    {
+        type: 'input',
+        name: 'lastName',
+        message: 'Enter the employee\'s last name:',
+    },
+    {
+        type: 'input',
+        name: 'roleId',
+        message: 'Enter the role ID for the employee:',
+    },
+    {
+        type: 'input',
+        name: 'managerId',
+        message: 'Enter the manager ID for the employee (leave blank if none):',
+    },
+  ])
+  .then((answers) => {
+      client.query(
+        'INSERT INTO employee (firstName, lastName, roleId, managerId) VALUES ($1,$2,$3,$4)', 
+        [answers.firstName,answers.lastName,answers.roleId, answers.managerId], (err, res) => {
+          if (err) {
+            console.error(err);
+          } else {
+            console.log(res.rows);
+          }
+          mainmenu(); 
+        });
+  })
+};
+
+function updateEmployeeRole() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'employeeId',
+      message: 'Enter the ID of the employee whose role you want to update:',
+    },
+    {
+      type: 'input',
+      name: 'roleId',
+      message: 'Enter the new role ID for the employee:',
+    }
+  ])
+  .then((answers) => {
+    const { employeeId, roleId } = answers;
+
+    client.query(
+      'UPDATE employee (role_id) VALUES ($1) WHERE (id) VALUES ($2)', 
+      [roleId, employeeId], (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res.rows);
+      }
+      mainmenu(); 
+    });
+  })
+  .catch((err) => {
+    console.error(err);
+  });
+}
+
+function ViewAllRoles(){
+  client.query('SELECT * FROM role', (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res.rows);
+      }
+      mainmenu(); 
+    });
+}
+
+function AddRole(){
+  inquirer.prompt([
+      {
+        type: 'input',
+        name: 'title',
+        message: 'Enter the role title:',
+    },
+    {
+        type: 'input',
+        name: 'salary',
+        message: 'Enter the salary for this role:',
+    },
+    {
+        type: 'input',
+        name: 'departmentId',
+        message: 'Enter the department ID for this role:',
+    },
+  ])
+  .then((answers) => {
+    client.query(
+      'INSERT INTO employee (title, salary, departmentId) VALUES ($1,$2,$3)', 
+      [answers.title,answers.salary,answers.departmentId], (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res.rows);
+      }
+      mainmenu(); 
+    });
+  })
+};
+
 function ViewAllDepartments(){
-    client.query('SELECT * FROM departments', (err, res) => {
+    client.query(
+      'SELECT * FROM department', (err, res) => {
         if (err) {
           console.error(err);
         } else {
@@ -42,27 +180,28 @@ function ViewAllDepartments(){
         }
         mainmenu(); 
       });
-}
+  };
 
-function AddEmployee(){
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'FName',
-            message: 'Enter Employee First Name',
-        },
-    ])
-    .then((answers) => {
-        //Values (FName, LName) must match schema value names and order in schema, Values (matches number of prompt), [answers.values]
-        client.query('INSERT INTO employees (FName, LName) VALUES ($1,$2)', [answers.FName,answers.LName], (err, res) => {
-            if (err) {
-              console.error(err);
-            } else {
-              console.log(res.rows);
-            }
-            mainmenu(); 
-          });
-    })
+function AddDepartment(){
+  inquirer.prompt([
+      {
+        type: 'input',
+        name: 'name',
+        message: 'Enter the department name:',
+    },
+  ])
+  .then((answers) => {
+    client.query(
+      'INSERT INTO employee (name) VALUES ($1)', 
+      [answers.name], (err, res) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(res.rows);
+      }
+      mainmenu(); 
+    });
+  })
 };
 
 mainmenu();
