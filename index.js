@@ -109,11 +109,9 @@ function updateEmployeeRole() {
     }
   ])
   .then((answers) => {
-    const { employeeId, roleId } = answers;
-
     client.query(
       'UPDATE employee (role_id) VALUES ($1) WHERE (id) VALUES ($2)', 
-      [roleId, employeeId], (err, res) => {
+      [answers.roleId, answers.employeeId], (err, res) => {
       if (err) {
         console.error(err);
       } else {
@@ -203,5 +201,9 @@ function AddDepartment(){
     });
   })
 };
+
+function Quit(){
+  process.exit();
+}
 
 mainmenu();

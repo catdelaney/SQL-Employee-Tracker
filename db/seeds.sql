@@ -1,3 +1,5 @@
+\c employee_tracker; 
+
 INSERT INTO department (name)
 VALUES
     ('Engineering'),
