@@ -26,26 +26,27 @@ const questions = [
           'Add Role', 
           'View All Departments', 
           'Add Department',
-          'Quit']
+          'Quit'
+        ]
     },
 ];
 
 function mainmenu(){
     inquirer.prompt(questions)
     .then((answers) => {
-      if (answers.Choice === 'View All Employees') ViewAllEmployees()
-      if (answers.Choice === 'Add Employee') AddEmployee()
-      if (answers.Choice === 'Update Employee Role') UpdateEmployeeRole()
-      if (answers.Choice === 'View All Roles') ViewAllRoles()
-      if (answers.Choice === 'Add Role') AddRole()
-      if (answers.Choice === 'View All Departments') ViewAllDepartments()
+      if (answers.Choice === 'View All Employees') ViewAllEmployees();
+      if (answers.Choice === 'Add Employee') AddEmployee();
+      if (answers.Choice === 'Update Employee Role') UpdateEmployeeRole();
+      if (answers.Choice === 'View All Roles') ViewAllRoles();
+      if (answers.Choice === 'Add Role') AddRole();
+      if (answers.Choice === 'View All Departments') ViewAllDepartments();
       if (answers.Choice === 'Add Department') AddDepartment();
       if (answers.Choice === 'Quit') Quit();
     })
     .catch((error) => {
         console.error(error);
     });
-    };
+    }
 
 function ViewAllEmployees(){
   client.query('SELECT * FROM employee', (err, res) => {
@@ -56,7 +57,7 @@ function ViewAllEmployees(){
       }
       mainmenu(); 
     });
-  };
+}
 
 function AddEmployee(){
   inquirer.prompt([
@@ -83,19 +84,20 @@ function AddEmployee(){
   ])
   .then((answers) => {
       client.query(
-        'INSERT INTO employee (firstName, lastName, roleId, managerId) VALUES ($1,$2,$3,$4)', 
-        [answers.firstName,answers.lastName,answers.roleId, answers.managerId], (err, res) => {
+        'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)', 
+        [answers.firstName, answers.lastName, answers.roleId, answers.managerId ||null], (err, res) => {
           if (err) {
             console.error(err);
           } else {
             console.log(res.rows);
           }
           mainmenu(); 
-        });
-  })
-};
+        }
+      );
+  });
+}
 
-function updateEmployeeRole() {
+function UpdateEmployeeRole() {
   inquirer.prompt([
     {
       type: 'input',
@@ -110,16 +112,18 @@ function updateEmployeeRole() {
   ])
   .then((answers) => {
     client.query(
-      'UPDATE employee (role_id) VALUES ($1) WHERE (id) VALUES ($2)', 
-      [answers.roleId, answers.employeeId], (err, res) => {
+      'UPDATE employee SET role_id = $1 WHERE id = $2', 
+      [answers.roleId, answers.employeeId], 
+      (err, res) => {
       if (err) {
         console.error(err);
       } else {
         console.log(res.rows);
       }
       mainmenu(); 
-    });
-  })
+    }
+  );
+})
   .catch((err) => {
     console.error(err);
   });
@@ -156,8 +160,8 @@ function AddRole(){
   ])
   .then((answers) => {
     client.query(
-      'INSERT INTO employee (title, salary, departmentId) VALUES ($1,$2,$3)', 
-      [answers.title,answers.salary,answers.departmentId], (err, res) => {
+      'INSERT INTO role (title, salary, department_id) VALUES ($1, $2, $3)', 
+      [answers.title, answers.salary, answers.departmentId], (err, res) => {
       if (err) {
         console.error(err);
       } else {
@@ -190,7 +194,7 @@ function AddDepartment(){
   ])
   .then((answers) => {
     client.query(
-      'INSERT INTO employee (name) VALUES ($1)', 
+      'INSERT INTO department (name) VALUES ($1)', 
       [answers.name], (err, res) => {
       if (err) {
         console.error(err);
