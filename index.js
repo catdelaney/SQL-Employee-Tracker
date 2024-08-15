@@ -85,7 +85,7 @@ function AddEmployee(){
   .then((answers) => {
       client.query(
         'INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ($1,$2,$3,$4)', 
-        [answers.firstName, answers.lastName, answers.roleId, answers.managerId ||null], (err, res) => {
+        [answers.first_name, answers.last_name, answers.roleId, answers.managerId ||null], (err, res) => {
           if (err) {
             console.error(err);
           } else {
